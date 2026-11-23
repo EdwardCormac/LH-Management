@@ -19,11 +19,11 @@
   {
     "email": "systemadmin@lnmiit.ac.in",
     "password": "y0Ur-$@fe-P@$$W0rD",
-    "role": "guard"
+    "role": "systemAdministrator"
   },
   {
     "email": "gsec@lnmiit.ac.in",
     "password": "y0Ur-$@fe-P@$$W0rD",
-    "role": "guard"
+    "role": "gsec"
   }
 ]
