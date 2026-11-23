@@ -1,73 +1,95 @@
-# Getting Started with Create React App
+# LNMIIT Lecture Hall Booking
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack app for booking lecture halls (LTs) at LNMIIT. Student club representatives submit a booking request, and it moves through an approval chain before the hall is confirmed.
 
-## Available Scripts
+**Stack:** React (Create React App) + Tailwind, Node.js + Express, MongoDB (Mongoose), JWT auth in httpOnly cookies, deployed on Vercel.
 
-In the project directory, you can run:
+**Live demo:** `<your-frontend>.vercel.app` (replace with the deployed URL)
 
-### `npm start`
+## Try it in 30 seconds
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. Open the live demo and click **Try demo (General Secretary)** on the login page.
+2. Or sign in manually:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+   | Field    | Value                  |
+   |----------|------------------------|
+   | Email    | `demo.gsec@example.com` |
+   | Password | `LHDemo@2026`           |
 
-### `npm test`
+The demo account has the **General Secretary** role only, which can create booking requests and view its own. It cannot approve anything and has no admin access. The demo runs on a separate, disposable database, so feel free to click around.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Walkthrough
 
-### `npm run build`
+1. **Book a hall** (`/book`). After login you land on the booking form. Pick a lecture hall (LT1, LT2 or LT19), a club, the start and end date, the start and end time, a reason, and whether you need AV support. Submit to send the request.
+2. **Conflict detection.** Try booking LT1 for the same slot as an existing booking. The server rejects it with "LT Already Booked" or "LT Already Requested", depending on whether the earlier request is approved or still pending. Seeded bookings sit on LT1, LT2 and LT19 over the next two weeks, so choose a different date or hall if you want a fresh request to succeed.
+3. **Track your requests** (`/reqLogs`). Requests appear under three tabs: pending, approved and rejected. The seeded data fills all three so you can see each state.
+4. **Late-night bookings.** If the end time is 22:45 or later, the form asks for a supporting PDF reference.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### How approvals work
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+A request needs approval from the club's **Faculty Mentor** and the **Assistant Registrar**. If AV support was requested, the **System Administrator** must approve as well. Those roles use the `/requests` screen. They are intentionally not part of the public demo. The seed data includes bookings already at each stage so the GSec views show the whole lifecycle.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Architecture
 
-### `npm run eject`
+```
+React SPA (Vercel)  --axios + cookies-->  Express API (Vercel serverless)  -->  MongoDB
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+| Area | Details |
+|------|---------|
+| Auth | `POST /auth/login` checks the password with bcrypt and sets a 1-day JWT in an httpOnly, secure, `SameSite=None` cookie. |
+| Roles | `systemAdministrator`, `assistantRegistrar`, `facultyMentor`, `guard`, `gsec`. Route-level checks live in `middlewares/`. |
+| Bookings | One `Booking` document tracks three independent approval statuses (faculty, assistant registrar, system administrator). |
+| Cleanup | Bookings whose end date has passed are deleted daily by a Vercel Cron job calling `/deleteUnwanted`. |
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Run it locally
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Prerequisites: Node 18+, and a MongoDB database (a free MongoDB Atlas cluster is fine).
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+# Backend
+cd LH-Management-Backend-main
+cp .env.example .env        # fill in MONGODB_URL and the secrets
+npm install
+npm run seed:demo           # creates the demo user and sample bookings
+npm run dev                 # http://localhost:9000
 
-## Learn More
+# Frontend (new terminal)
+cd lh_management-main
+cp .env.example .env        # REACT_APP_BACKEND_URL=http://localhost:9000
+npm install
+npm start                   # http://localhost:3000
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+`npm run seed:demo` can be re-run at any time. It resets the demo user's password and replaces only the demo user's bookings.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Environment variables
 
-### Code Splitting
+**Backend** (`LH-Management-Backend-main/.env`, or Vercel project settings)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+| Variable | Purpose |
+|----------|---------|
+| `MONGODB_URL` | MongoDB connection string |
+| `JWT_SECRET` | Signs and verifies login tokens (required in production) |
+| `SESSION_SECRET` | Express session secret (defaults to `JWT_SECRET`) |
+| `CLIENT_ORIGINS` | Comma-separated frontend origins allowed by CORS |
+| `CRON_SECRET` | Protects `/deleteUnwanted`; Vercel Cron sends it automatically |
+| `ALLOW_SIGNUP` | Set to `true` to enable `POST /auth/signup` (off by default because callers choose their own role) |
+| `DEMO_EMAIL`, `DEMO_PASSWORD` | Optional overrides for the seeded demo account |
 
-### Analyzing the Bundle Size
+**Frontend** (`lh_management-main/.env`, or Vercel project settings)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+| Variable | Purpose |
+|----------|---------|
+| `REACT_APP_BACKEND_URL` | Backend base URL, no trailing slash |
+| `REACT_APP_DEMO_EMAIL`, `REACT_APP_DEMO_PASSWORD` | Credentials used by the "Try demo" button |
 
-### Making a Progressive Web App
+## Deploying to Vercel
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Create two Vercel projects from this repo.
 
-### Advanced Configuration
+1. **Backend:** set the root directory to `LH-Management-Backend-main` and add the backend variables above. Set `CLIENT_ORIGINS` to the frontend's URL.
+2. **Frontend:** set the root directory to `lh_management-main` and add `REACT_APP_BACKEND_URL` pointing at the backend project's URL.
+3. Run `npm run seed:demo` once against the production database (from your machine, with `MONGODB_URL` pointing at it).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-
-
-# LH-Management-Backend
+The frontend and backend live on different domains, so login relies on cross-site cookies. Browsers that block third-party cookies (Safari, or Chrome in incognito) may not keep the session.

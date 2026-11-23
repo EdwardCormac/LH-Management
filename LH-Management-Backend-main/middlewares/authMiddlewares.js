@@ -1,21 +1,18 @@
 // middleware/authMiddleware.js
-const jwt = require('jsonwebtoken');
+const { verifyToken } = require('../utils/jwt');
 
-const authenticate = (req, res, next) => {
+const authenticate = async (req, res, next) => {
   const token = req.cookies.jwt;
-  secretKey = 'your-secret-key'
   if (!token) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  jwt.verify(token, secretKey, (err, decodedToken) => {
-    if (err) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    req.user = decodedToken;
+  try {
+    req.user = await verifyToken(token);
     next();
-  });
+  } catch (err) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
 };
 
 const authorize = (roles) => {

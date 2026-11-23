@@ -1,0 +1,29 @@
+[
+  {
+    "email": "faculty@lnmiit.ac.in",
+    "password": "y0Ur-$@fe-P@$$W0rD",
+    "role": "facultyMentor",
+    "name": "Faculty Mentor",
+    "clubName": "Cultural Council"
+  },
+  {
+    "email": "registrar@lnmiit.ac.in",
+    "password": "y0Ur-$@fe-P@$$W0rD",
+    "role": "assistantRegistrar"
+  },
+  {
+    "email": "guard@lnmiit.ac.in",
+    "password": "y0Ur-$@fe-P@$$W0rD",
+    "role": "guard"
+  },
+  {
+    "email": "systemadmin@lnmiit.ac.in",
+    "password": "y0Ur-$@fe-P@$$W0rD",
+    "role": "guard"
+  },
+  {
+    "email": "gsec@lnmiit.ac.in",
+    "password": "y0Ur-$@fe-P@$$W0rD",
+    "role": "guard"
+  }
+]
