@@ -4,7 +4,7 @@ A full-stack app for booking lecture halls (LTs) at LNMIIT. Student club represe
 
 **Stack:** React (Create React App) + Tailwind, Node.js + Express, MongoDB (Mongoose), JWT auth in httpOnly cookies, deployed on Vercel.
 
-**Live demo:** `<your-frontend>.vercel.app` (replace with the deployed URL)
+**Live demo:** [lh-management-znfg.vercel.app](https://lh-management-znfg.vercel.app)
 
 ## Try it in 30 seconds
 
@@ -44,7 +44,7 @@ React SPA (Vercel)  --axios + cookies-->  Express API (Vercel serverless)  -->  
 
 ## Run it locally
 
-Prerequisites: Node 18+, and a MongoDB database (a free MongoDB Atlas cluster is fine).
+Prerequisites: Node 24 (the version the Vercel deployment uses), and a MongoDB database (a free MongoDB Atlas cluster is fine).
 
 ```bash
 # Backend
@@ -89,7 +89,7 @@ npm start                   # http://localhost:3000
 Create two Vercel projects from this repo.
 
 1. **Backend:** set the root directory to `backend` and add the backend variables above. Set `CLIENT_ORIGINS` to the frontend's URL.
-2. **Frontend:** set the root directory to `frontend` and add `REACT_APP_BACKEND_URL` pointing at the backend project's URL.
-3. Run `npm run seed:demo` once against the production database (from your machine, with `MONGODB_URL` pointing at it).
+2. **Frontend:** set the root directory to `frontend` and add `REACT_APP_BACKEND_URL` pointing at the backend project's URL, plus `REACT_APP_DEMO_EMAIL` and `REACT_APP_DEMO_PASSWORD`. Also set `CI=false`, because Vercel sets `CI=true` and Create React App then fails the build on ESLint warnings.
+3. Run `npm run seed:demo` once against the production database (from your machine, with `MONGODB_URL` pointing at it, or `npm run seed:demo -- --env=.env.live`).
 
 The frontend and backend live on different domains, so login relies on cross-site cookies. Browsers that block third-party cookies (Safari, or Chrome in incognito) may not keep the session.
