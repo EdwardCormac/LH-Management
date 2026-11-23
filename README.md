@@ -1,5 +1,7 @@
 # LNMIIT Lecture Hall Booking
 
+[Please refresh the page if logging in or logging out produces a blank page instead of the designated pages. Thanks!]
+
 A full-stack app for booking lecture halls (LTs) at LNMIIT. Student club representatives submit a booking request, and it moves through an approval chain before the hall is confirmed.
 
 **Stack:** React (Create React App) + Tailwind, Node.js + Express, MongoDB (Mongoose), JWT auth in httpOnly cookies, deployed on Vercel.
