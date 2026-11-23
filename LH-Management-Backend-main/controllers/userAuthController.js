@@ -1,12 +1,16 @@
 // controllers/authController.js
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const dotenv = require('dotenv')
+const { ALLOW_SIGNUP } = require('../config/env');
+const { signToken } = require('../utils/jwt');
 
 
 
 module.exports.signup = async (req, res) => {
+  // Public signup lets the caller choose any role, so it is disabled unless ALLOW_SIGNUP=true.
+  if (!ALLOW_SIGNUP) {
+    return res.status(403).json({ message: 'Signup is disabled' });
+  }
   try {
     const { email, password, role } = req.body;
 
@@ -28,9 +32,11 @@ module.exports.signup = async (req, res) => {
 
     // Save the user to the database
     await newUser.save();
-secretKey = 'your-secret-key'
     // Generate a JWT token for the newly registered user
-    const token = jwt.sign({ userId: newUser.id, email: newUser.email, role: newUser.role }, secretKey);
+    const token = await signToken(
+      { userId: newUser.id, email: newUser.email, role: newUser.role },
+      '1d'
+    );
 
     // Set the JWT token in a cookie
     res.cookie('jwt', token, {
@@ -66,10 +72,10 @@ module.exports.login = async (req, res) => {
     }
 
     // Generate a JWT token
-    const secretKey = process.env.JWT_SECRET || 'your-secret-key';
-    const token = jwt.sign({ userId: user.id, email: user.email, role: user.role }, secretKey, {
-      expiresIn: '1d', // Token expiration time
-    });
+    const token = await signToken(
+      { userId: user.id, email: user.email, role: user.role },
+      '1d' // Token expiration time
+    );
 
     // Set the JWT token in a cookie
     res.cookie('jwt', token, {

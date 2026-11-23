@@ -4,6 +4,11 @@ import { useSnackbar } from "../SnackBar";
 import { redirect, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Cookies } from "react-cookie";
+// Throwaway General Secretary account created by `npm run seed:demo` in the backend.
+// These values ship in the public bundle, so never point them at a real account.
+const DEMO_EMAIL = process.env.REACT_APP_DEMO_EMAIL || "demo.gsec@example.com";
+const DEMO_PASSWORD = process.env.REACT_APP_DEMO_PASSWORD || "LHDemo@2026";
+
 function LoginSection() {
   const {
     register,
@@ -73,6 +78,8 @@ function LoginSection() {
       setLoading(false)
     })
   }
+
+  const loginAsDemo = () => login({ email: DEMO_EMAIL, password: DEMO_PASSWORD });
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
@@ -178,6 +185,14 @@ function LoginSection() {
             <span class="sr-only">Loading...</span>
           </div>}
                 Sign in
+              </button>
+              <button
+                type="button"
+                onClick={loginAsDemo}
+                disabled={loading}
+                className="w-full text-center font-medium rounded-lg text-sm px-5 py-2.5 border border-gray-300 text-gray-900 bg-white hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Try demo (General Secretary)
               </button>
             </form>
           </div>
