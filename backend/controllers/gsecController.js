@@ -73,7 +73,7 @@ module.exports.makeRequest = async (req, res) => {
       avSupport,
       facultyMentorEmail,
       clubName,
-      pdf
+      pdf,
     });
 
     await newBooking.save();
@@ -92,7 +92,7 @@ module.exports.getAllRequestsByMe = async (req, res) => {
   try {
     const id = req.query.id;
     const findGsecUser = await User.findById(id);
-    console.log(findGsecUser);
+    // console.log(findGsecUser);
     if (!findGsecUser) {
       return res.status(404).json({ error: "User not found" });
     }

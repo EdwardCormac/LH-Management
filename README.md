@@ -1,7 +1,5 @@
 # LNMIIT Lecture Hall Booking
 
-[Please refresh the page if logging in or logging out produces a blank page instead of the designated pages. Thanks!]
-
 A full-stack app for booking lecture halls (LTs) at LNMIIT. Student club representatives submit a booking request, and it moves through an approval chain before the hall is confirmed.
 
 **Stack:** React (Create React App) + Tailwind, Node.js + Express, MongoDB (Mongoose), JWT auth in httpOnly cookies, deployed on Vercel.
@@ -30,6 +28,30 @@ The demo account has the **General Secretary** role only, which can create booki
 ### How approvals work
 
 A request needs approval from the club's **Faculty Mentor** and the **Assistant Registrar**. If AV support was requested, the **System Administrator** must approve as well. Those roles use the `/requests` screen. They are intentionally not part of the public demo. The seed data includes bookings already at each stage so the GSec views show the whole lifecycle.
+
+### Approval walkthrough (screenshots)
+
+These screens come from the private approver accounts and show one request moving through the chain.
+
+**1. The General Secretary submits a request.** It shows up under *Pending* in the Request Log with both approvals pending.
+
+![GSec Request Log: request pending](backend/docs/images/gsec.png)
+
+**2. The approvers see the request on their `/requests` screen.** The Faculty Mentor and the Assistant Registrar each get it under *Pending*, with **Accept** and **Reject** buttons. Their decisions are independent, so either one can act first. The Faculty Mentor's view is shown here.
+
+![Faculty Mentor: pending request with Accept and Reject](backend/docs/images/faculty_before_approval.png)
+
+**3. Each approval is recorded separately.** Here the Faculty Mentor has accepted, so the request moves to *Approved* on their side, while the Assistant Registrar's approval is still pending.
+
+![Faculty Mentor: approved, registrar pending](backend/docs/images/faculty_mentor.png)
+
+**4. The Assistant Registrar accepts as well.** With no AV support requested, both approvals are done and the hall is confirmed.
+
+![Assistant Registrar: fully approved](backend/docs/images/registrar.png)
+
+**5. Requests with AV support also need the System Administrator.** This request asked for AV support, so all three approvals are shown.
+
+![System Administrator: all three approvals](backend/docs/images/system_admin.png)
 
 ## Architecture
 
@@ -94,4 +116,4 @@ Create two Vercel projects from this repo.
 2. **Frontend:** set the root directory to `frontend` and add `REACT_APP_BACKEND_URL` pointing at the backend project's URL, plus `REACT_APP_DEMO_EMAIL` and `REACT_APP_DEMO_PASSWORD`. Also set `CI=false`, because Vercel sets `CI=true` and Create React App then fails the build on ESLint warnings.
 3. Run `npm run seed:demo` once against the production database (from your machine, with `MONGODB_URL` pointing at it, or `npm run seed:demo -- --env=.env.live`).
 
-The frontend and backend live on different domains, so login relies on cross-site cookies. Browsers that block third-party cookies (Safari, or Chrome in incognito) may not keep the session.
+The frontend and backend live on different domains, so login relies on cross-site cookies. Browsers that block third-party cookies by default (Safari, for example) may not keep the session.
